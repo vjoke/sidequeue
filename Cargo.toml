@@ -1,0 +1,14 @@
+[package]
+name = "sidequeue"
+version = "0.1.0"
+authors = ["hsiung <vjoke@foxmail.com>"]
+edition = "2018"
+description = "A rust queue born for scheduling jobs"
+homepage = "https://github.com/vjoke/sidequeue"
+repository = "https://github.com/vjoke/sidequeue.git"
+documentation = "https://docs.rs/sidequeue"
+license-file = "LICENSE.txt"
+readme = "README.md"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
