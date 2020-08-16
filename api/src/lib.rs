@@ -1,7 +1,11 @@
+mod handlers;
+
+use crate::handlers::get_routes;
+use sq_engine::{new_engine, EngineType};
+use sq_logger::prelude::*;
 use std::net::SocketAddr;
 use tokio::runtime::{Builder, Runtime};
 use warp::Filter;
-use sq_logger::prelude::*;
 
 pub fn start_api_service(address: SocketAddr) -> Runtime {
     let runtime = Builder::new()
@@ -11,11 +15,8 @@ pub fn start_api_service(address: SocketAddr) -> Runtime {
         .build()
         .expect("[api] failed to create runtime");
 
-    // TODO: get true routers
-    let routes = warp::path!("hello" / String).map(|name| {
-        info!("got hello from: {}", name);
-        format!("Hello, {}!", name)
-    });
+    let engine = new_engine(EngineType::MemoryEngine);
+    let routes = get_routes(&*engine);
     let server = runtime.enter(move || warp::serve(routes).bind(address));
     runtime.handle().spawn(server);
     runtime

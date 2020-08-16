@@ -6,15 +6,14 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
 };
-use tokio::runtime::Runtime;
 use structopt::StructOpt;
+use tokio::runtime::Runtime;
 
 pub struct SideQueueHandle {
     _api: Runtime,
 }
 
 fn main() {
-
     if env::var("RUST_LOG").is_err() {
         env::set_var("RUST_LOG", "info");
     }
