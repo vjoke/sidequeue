@@ -1,7 +1,7 @@
 mod handlers;
 
 use crate::handlers::get_routes;
-use sq_engine::{new_engine, EngineType};
+use sq_engine::{Backend, EngineType};
 use sq_logger::prelude::*;
 use std::net::SocketAddr;
 use tokio::runtime::{Builder, Runtime};
@@ -15,8 +15,8 @@ pub fn start_api_service(address: SocketAddr) -> Runtime {
         .build()
         .expect("[api] failed to create runtime");
 
-    let engine = new_engine(EngineType::MemoryEngine);
-    let routes = get_routes(&*engine);
+    let backend = Backend::new(EngineType::MemoryEngine);
+    let routes = get_routes(backend);
     let server = runtime.enter(move || warp::serve(routes).bind(address));
     runtime.handle().spawn(server);
     runtime

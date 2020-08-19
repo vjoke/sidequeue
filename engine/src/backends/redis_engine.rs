@@ -2,6 +2,7 @@ use crate::engine::Engine;
 use std::io;
 
 /// RedisEngine implements an engine with redis
+#[derive(Clone)]
 pub struct RedisEngine {}
 
 impl RedisEngine {

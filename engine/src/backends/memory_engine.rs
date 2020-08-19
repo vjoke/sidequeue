@@ -4,6 +4,7 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 /// MemoryEngine implements an engine with an in-memory db
+#[derive(Clone)]
 pub struct MemoryEngine {
     pub db: Arc<Mutex<Vec<Job>>>,
 }
