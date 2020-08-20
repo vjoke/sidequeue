@@ -22,7 +22,7 @@ pub(super) fn unwrap_or_500(result: Result<Box<dyn Reply>>) -> Box<dyn Reply> {
 
 /// Return 400 on any rejections (parameter parsing errors).
 pub(super) async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
-    warn!("bad request: {:?}", err);
+    warn!("request: {:?}", err);
     let code;
     let message;
 
