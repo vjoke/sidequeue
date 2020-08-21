@@ -13,14 +13,6 @@ impl RedisEngine {
 
 impl Engine for RedisEngine {
     /// Publish a job to the queue
-    ///
-    /// # Arguments
-    ///
-    /// * `namespace` - A string that holds the queue for the job
-    /// * `body` - A vector of bytes that holds the job body
-    /// * `ttl` - A u32 value that holds the time-to-live value
-    /// * `delay` - A u32 value that holds the delay value in second
-    /// * `tries` - A u16 value that holds th e maximize retry count
     fn publish(
         &self,
         namespace: String,
@@ -34,14 +26,6 @@ impl Engine for RedisEngine {
     }
 
     /// Consume jobs from queues
-    ///
-    /// # Arguments
-    ///
-    /// * `namespace` - A string that holds the queue for the job
-    /// * `body` - A vector of bytes that holds the job body
-    /// * `ttl` - A u32 value that holds the time-to-live value
-    /// * `delay` - A u32 value that holds the delay value in second
-    /// * `tries` - A u16 value that holds th e maximize retry count
     fn consume(
         &self,
         namespace: String,
@@ -53,4 +37,94 @@ impl Engine for RedisEngine {
         let jobs = Vec::new();
         Ok(jobs)
     }
+
+
+    /// Delete a job from queue
+    fn delete(
+        &self,
+        namespace: String,
+        queues: String,
+        job_id: String,
+    ) -> Result<(), io::Error> {
+        Ok(())
+    }
+
+    /// Peek a job from queue
+    fn peek(
+        &self,
+        namespace: String,
+        queues: String,
+        job_id: Option<String>,
+    ) -> Result<Job, io::Error> {
+        Ok(Job{
+            id: "TODO".into()
+        })
+    }
+
+    /// Get size of the queue
+    fn size(
+        &self,
+        namespace: String,
+        queues: String,
+    ) -> Result<u64, io::Error> {
+        Ok(0)
+    }
+
+    /// Destroy the queue
+    fn destroy(
+        &self,
+        namespace: String,
+        queues: String,
+    ) -> Result<u64, io::Error> {
+        Ok(0)
+    }
+
+    /// Peek dead letter from the queue
+    fn peek_dead_letter(
+        &self,
+        namespace: String,
+        queues: String,
+    ) -> Result<(u64, String), io::Error> {
+        Ok((0, "none".into()))
+    }
+
+    /// Delete dead letter of the queue
+    fn delete_dead_letter(
+        &self,
+        namespace: String,
+        queues: String,
+        limit: u64,
+    ) -> Result<u64, io::Error> {
+        Ok(0)
+    }
+
+    /// respawn dead letter of the queue
+    fn respawn_dead_letter(
+        &self,
+        namespace: String,
+        queues: String,
+        limit: u64,
+        ttl: u64,
+    ) -> Result<u64, io::Error> {
+        Ok(0)
+    }
+
+    /// Get size of dead letters of the queue
+    fn size_of_dead_letter(
+        &self,
+        namespace: String,
+        queues: String,
+    ) -> Result<u64, io::Error> {
+        Ok(0)
+    }
+
+    /// Dump the runtime info
+    fn dump_info(&self) -> Result<(), io::Error> {
+        Ok(())
+    }
+
+    /// Shutdown the engine
+    fn shutdown(&self) -> Result<(), io::Error> {
+        Ok(())
+    } 
 }
