@@ -1,25 +1,17 @@
 use crate::engine::{Engine, Job};
 use std::io;
-// use std::sync::Arc;
-// use tokio::sync::Mutex;
 
-/// MemoryEngine implements an engine with an in-memory db
+/// RedisEngine implements an engine with redis
 // #[derive(Clone)]
-pub struct MemoryEngine {
-    /// the jobs to be scheduled
-    pub jobs: Vec<Job>,
-}
+pub struct RedisEngine {}
 
-impl MemoryEngine {
-    pub fn new() -> Self {
-        MemoryEngine {
-            // db: Arc::new(Mutex::new(Vec::new())),
-            jobs: Vec::new(),
-        }
+impl RedisEngine {
+    pub fn new(url: String) -> Self {
+        RedisEngine {}
     }
 }
 
-impl Engine for MemoryEngine {
+impl Engine for RedisEngine {
     /// Publish a job to the queue
     fn publish(
         &self,
@@ -30,10 +22,10 @@ impl Engine for MemoryEngine {
         delay: u32,
         tries: u16,
     ) -> Result<String, io::Error> {
-        Ok("some".into())
+        Ok("redis engine".into())
     }
 
-    /// Consume jobs
+    /// Consume jobs from queues
     fn consume(
         &self,
         namespace: String,
@@ -47,12 +39,7 @@ impl Engine for MemoryEngine {
     }
 
     /// Delete a job from queue
-    fn delete(
-        &self,
-        namespace: String,
-        queues: String,
-        job_id: String,
-    ) -> Result<(), io::Error> {
+    fn delete(&self, namespace: String, queues: String, job_id: String) -> Result<(), io::Error> {
         Ok(())
     }
 
@@ -63,26 +50,16 @@ impl Engine for MemoryEngine {
         queues: String,
         job_id: Option<String>,
     ) -> Result<Job, io::Error> {
-        Ok(Job{
-            id: "TODO".into()
-        })
+        Ok(Job { id: "TODO".into() })
     }
 
     /// Get size of the queue
-    fn size(
-        &self,
-        namespace: String,
-        queues: String,
-    ) -> Result<u64, io::Error> {
+    fn size(&self, namespace: String, queues: String) -> Result<u64, io::Error> {
         Ok(0)
     }
 
     /// Destroy the queue
-    fn destroy(
-        &self,
-        namespace: String,
-        queues: String,
-    ) -> Result<u64, io::Error> {
+    fn destroy(&self, namespace: String, queues: String) -> Result<u64, io::Error> {
         Ok(0)
     }
 
@@ -117,11 +94,7 @@ impl Engine for MemoryEngine {
     }
 
     /// Get size of dead letters of the queue
-    fn size_of_dead_letter(
-        &self,
-        namespace: String,
-        queues: String,
-    ) -> Result<u64, io::Error> {
+    fn size_of_dead_letter(&self, namespace: String, queues: String) -> Result<u64, io::Error> {
         Ok(0)
     }
 
@@ -133,5 +106,5 @@ impl Engine for MemoryEngine {
     /// Shutdown the engine
     fn shutdown(&self) -> Result<(), io::Error> {
         Ok(())
-    } 
+    }
 }

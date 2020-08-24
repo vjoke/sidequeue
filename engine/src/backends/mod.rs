@@ -1,11 +1,12 @@
-mod memory_engine;
-mod redis_engine;
+mod memory;
+mod redis;
 
 use crate::engine::Engine;
-use memory_engine::MemoryEngine;
-use redis_engine::RedisEngine;
+use memory::engine::MemoryEngine;
+use redis::engine::RedisEngine;
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use std::future::Future;
 
 /// EngineType defines the supported engine type
 pub enum EngineType {
@@ -20,7 +21,7 @@ pub struct Backend {
 }
 
 impl Backend {
-    pub fn new(typ: EngineType) -> Self {
+    pub fn new(typ: EngineType, shutdown: impl Future) -> Self {
         Backend {
             engine: Arc::new(Mutex::new(new_engine(typ))),
         }

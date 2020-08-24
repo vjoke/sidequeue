@@ -1,17 +1,22 @@
 use crate::engine::{Engine, Job};
 use std::io;
 
-/// RedisEngine implements an engine with redis
-// #[derive(Clone)]
-pub struct RedisEngine {}
+/// MemoryEngine implements an engine with an in-memory db
+pub struct MemoryEngine {
+    /// the jobs to be scheduled
+    pub jobs: Vec<Job>,
+}
 
-impl RedisEngine {
-    pub fn new(url: String) -> Self {
-        RedisEngine {}
+impl MemoryEngine {
+    pub fn new() -> Self {
+        MemoryEngine {
+            // db: Arc::new(Mutex::new(Vec::new())),
+            jobs: Vec::new(),
+        }
     }
 }
 
-impl Engine for RedisEngine {
+impl Engine for MemoryEngine {
     /// Publish a job to the queue
     fn publish(
         &self,
@@ -22,10 +27,10 @@ impl Engine for RedisEngine {
         delay: u32,
         tries: u16,
     ) -> Result<String, io::Error> {
-        Ok("redis engine".into())
+        Ok("some".into())
     }
 
-    /// Consume jobs from queues
+    /// Consume jobs
     fn consume(
         &self,
         namespace: String,
@@ -38,14 +43,8 @@ impl Engine for RedisEngine {
         Ok(jobs)
     }
 
-
     /// Delete a job from queue
-    fn delete(
-        &self,
-        namespace: String,
-        queues: String,
-        job_id: String,
-    ) -> Result<(), io::Error> {
+    fn delete(&self, namespace: String, queues: String, job_id: String) -> Result<(), io::Error> {
         Ok(())
     }
 
@@ -56,26 +55,16 @@ impl Engine for RedisEngine {
         queues: String,
         job_id: Option<String>,
     ) -> Result<Job, io::Error> {
-        Ok(Job{
-            id: "TODO".into()
-        })
+        Ok(Job { id: "TODO".into() })
     }
 
     /// Get size of the queue
-    fn size(
-        &self,
-        namespace: String,
-        queues: String,
-    ) -> Result<u64, io::Error> {
+    fn size(&self, namespace: String, queues: String) -> Result<u64, io::Error> {
         Ok(0)
     }
 
     /// Destroy the queue
-    fn destroy(
-        &self,
-        namespace: String,
-        queues: String,
-    ) -> Result<u64, io::Error> {
+    fn destroy(&self, namespace: String, queues: String) -> Result<u64, io::Error> {
         Ok(0)
     }
 
@@ -110,11 +99,7 @@ impl Engine for RedisEngine {
     }
 
     /// Get size of dead letters of the queue
-    fn size_of_dead_letter(
-        &self,
-        namespace: String,
-        queues: String,
-    ) -> Result<u64, io::Error> {
+    fn size_of_dead_letter(&self, namespace: String, queues: String) -> Result<u64, io::Error> {
         Ok(0)
     }
 
@@ -126,5 +111,5 @@ impl Engine for RedisEngine {
     /// Shutdown the engine
     fn shutdown(&self) -> Result<(), io::Error> {
         Ok(())
-    } 
+    }
 }

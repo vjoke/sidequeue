@@ -8,6 +8,8 @@ use std::sync::{
 };
 use structopt::StructOpt;
 use tokio::runtime::Runtime;
+use tokio::signal;
+use std::future::Future;
 
 pub struct SideQueueHandle {
     _api: Runtime,
@@ -23,7 +25,8 @@ fn main() {
 
     let options = SideQueueOptions::from_args();
     info!("options: {:#?}", options);
-    let _handle = setup(&options.api);
+    let shutdown = signal::ctrl_c();
+    let _handle = setup(&options.api, shutdown);
 
     let term = Arc::new(AtomicBool::new(false));
     while !term.load(Ordering::Acquire) {
@@ -33,7 +36,7 @@ fn main() {
     info!("bye, sidequeue with info");
 }
 
-fn setup(api: &APIServiceOptions) -> SideQueueHandle {
-    let api_service = start_api_service(api.address);
+fn setup(api: &APIServiceOptions, shutdown: impl Future) -> SideQueueHandle {
+    let api_service = start_api_service(api.address, shutdown);
     SideQueueHandle { _api: api_service }
 }

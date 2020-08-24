@@ -13,6 +13,7 @@ readme = "README.md"
 
 [dependencies]
 sq-logger = {path = "../../common/logger"}
+sq-shutdown = {path = "../../common/shutdown"}
 api-service = {path = "../../api"}
 tokio = { version = "0.2.22", features = ["full"] }
 structopt = "0.3.15"
