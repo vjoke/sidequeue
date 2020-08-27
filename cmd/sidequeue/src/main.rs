@@ -2,17 +2,13 @@ use api_service::start_api_service;
 use sidequeue::options::*;
 use sq_logger::{info, Logger};
 use std::env;
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
 use structopt::StructOpt;
 use tokio::runtime::Runtime;
 use tokio::signal;
-use std::future::Future;
+use sq_shutdown::Context;
 
 pub struct SideQueueHandle {
-    _api: Runtime,
+    api: Runtime,
 }
 
 fn main() {
@@ -25,18 +21,23 @@ fn main() {
 
     let options = SideQueueOptions::from_args();
     info!("options: {:#?}", options);
-    let shutdown = signal::ctrl_c();
-    let _handle = setup(&options.api, shutdown);
 
-    let term = Arc::new(AtomicBool::new(false));
-    while !term.load(Ordering::Acquire) {
-        info!("park, sidequeue with info");
-        std::thread::park();
-    }
-    info!("bye, sidequeue with info");
+    let shutdown = signal::ctrl_c();
+    let context = Context::new();
+    let _api = setup(&options.api, &context);
+
+    let mut rt = Runtime::new().unwrap();
+    rt.block_on(async move {
+        info!("waiting for shutdown");
+        let _ = shutdown.await;
+        info!("request to shutdown now ...");
+        context.terminate().await;
+        info!("shutdown completely");
+    });
+    
+    info!("bye, sidequeue");
 }
 
-fn setup(api: &APIServiceOptions, shutdown: impl Future) -> SideQueueHandle {
-    let api_service = start_api_service(api.address, shutdown);
-    SideQueueHandle { _api: api_service }
+fn setup(api: &APIServiceOptions, context: &Context) -> Runtime {
+    start_api_service(api.address, context)
 }

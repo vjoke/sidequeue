@@ -15,4 +15,5 @@ warp = "0.2.4"
 futures = "0.3.5"
 tokio = { version = "0.2.22", features = ["full"]}
 sq-logger = {path = "../common/logger"}
+sq-shutdown = {path = "../common/shutdown"}
 sq-engine = {path = "../engine"}
