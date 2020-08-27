@@ -6,7 +6,12 @@ use memory::engine::MemoryEngine;
 use redis::engine::RedisEngine;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use std::future::Future;
+use tokio::time::{Duration, interval, Interval};
+use tokio::runtime::Runtime;
+use std::thread;
+
+use sq_logger::info;
+use sq_shutdown::Stub;
 
 /// EngineType defines the supported engine type
 pub enum EngineType {
@@ -18,13 +23,37 @@ pub enum EngineType {
 #[derive(Clone)]
 pub struct Backend {
     pub engine: Arc<Mutex<Box<dyn Engine>>>,
+    stub: Arc<Mutex<Stub>>,
 }
 
 impl Backend {
-    pub fn new(typ: EngineType, shutdown: impl Future) -> Self {
+    pub fn new(typ: EngineType, stub: Stub) -> Self {
         Backend {
             engine: Arc::new(Mutex::new(new_engine(typ))),
+            stub: Arc::new(Mutex::new(stub)),
         }
+    }
+
+    pub async fn run(&self) {
+        let mut stub = self.stub.lock().await;
+        let mut ticker = interval(Duration::new(1, 0));
+        loop {
+            tokio::select! {
+                _ = ticker.tick() => {
+                    info!("tick ...");
+                }
+                _ = stub.shutdown.recv() => {
+                    info!("exit run");
+                    return;
+                }
+            }
+        }
+    }
+}
+
+impl Drop for Backend {
+    fn drop(&mut self) {
+        info!("backend dropped");
     }
 }
 

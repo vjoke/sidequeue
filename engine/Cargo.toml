@@ -11,3 +11,5 @@ publish = false
 tokio = { version = "0.2.22", features = ["full"] }
 dyn-clonable = { version = "0.9.0" }
 crossbeam-deque = "0.7.3"
+sq-shutdown = {path = "../common/shutdown"}
+sq-logger = {path = "../common/logger"}
