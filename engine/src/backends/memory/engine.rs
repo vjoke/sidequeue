@@ -1,17 +1,19 @@
+use super::utils::DueTime;
 use crate::engine::{Engine, Job};
+use hashbrown::hash_map::DefaultHashBuilder;
+use priority_queue::PriorityQueue;
 use std::io;
 
 /// MemoryEngine implements an engine with an in-memory db
 pub struct MemoryEngine {
     /// the jobs to be scheduled
-    pub jobs: Vec<Job>,
+    pub pq: PriorityQueue<Job, DueTime, DefaultHashBuilder>,
 }
 
 impl MemoryEngine {
     pub fn new() -> Self {
         MemoryEngine {
-            // db: Arc::new(Mutex::new(Vec::new())),
-            jobs: Vec::new(),
+            pq: PriorityQueue::<_, _, DefaultHashBuilder>::with_default_hasher(),
         }
     }
 }

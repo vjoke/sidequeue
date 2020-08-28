@@ -1,4 +1,5 @@
 mod handlers;
+mod error;
 
 use crate::handlers::get_routes;
 use sq_engine::{Backend, EngineType};
@@ -7,6 +8,8 @@ use sq_shutdown::{Stub, Context};
 use std::net::SocketAddr;
 use std::thread;
 use tokio::runtime::{Builder, Runtime};
+
+pub use self::error::APIError;
 
 pub fn start_api_service(address: SocketAddr, context: &Context) -> Runtime {
     let runtime = Builder::new()

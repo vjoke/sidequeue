@@ -1,4 +1,7 @@
 use std::io;
+use std::cmp::{Eq, PartialEq};
+use std::hash::Hash;
+
 /// The engine defines the interface for all the underlying backend
 pub trait Engine: Send {
     /// Publish a job to the queue
@@ -124,6 +127,7 @@ pub trait Engine: Send {
 }
 
 /// Job holds details for the work to be done
+#[derive(Eq, PartialEq, Hash)]
 pub struct Job {
     /// the id of the job
     pub id: String,
