@@ -4,6 +4,7 @@ members = [
     "cmd/sidequeue",
     "common/logger",
     "common/shutdown",
+    "common/metrics",
     "api",
     "engine",
 ]
