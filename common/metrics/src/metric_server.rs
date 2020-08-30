@@ -110,14 +110,7 @@ async fn serve_public_metrics(req: Request<Body>) -> Result<Response<Body>, hype
     Ok(resp)
 }
 
-pub fn start_server(host: String, port: u16, public_metric: bool) {
-    // Only called from places that guarantee that host is parsable, but this must be assumed.
-    let addr: SocketAddr = (host.as_str(), port)
-        .to_socket_addrs()
-        .unwrap_or_else(|_| unreachable!("Failed to parse {}:{} as address", host, port))
-        .next()
-        .unwrap();
-
+pub fn start_server(addr: SocketAddr, public_metric: bool) {
     if public_metric {
         thread::spawn(move || {
             let make_service = make_service_fn(|_| {

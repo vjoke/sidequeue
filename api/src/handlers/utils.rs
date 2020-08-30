@@ -1,8 +1,31 @@
 use crate::handlers::errors;
 use anyhow::Result;
+use once_cell::sync::Lazy;
 use sq_logger::prelude::*;
 use std::{convert::Infallible, future::Future};
 use warp::{reply::Response, Rejection, Reply, Filter, http::StatusCode};
+use sq_metrics::{
+    register_histogram_vec, register_int_counter_vec, HistogramVec, IntCounterVec,
+};
+
+pub(super) static LATENCY_HISTOGRAM: Lazy<HistogramVec> = Lazy::new(|| {
+    register_histogram_vec!(
+        "api_service_latency_s",
+        "API service endpoint latency.",
+        &["endpoint", "status"]
+    )
+    .unwrap()
+});
+
+// pub(super) static THROUGHPUT_COUNTER: Lazy<IntCounterVec> = Lazy::new(|| {
+//     register_int_counter_vec!(
+//         "api_service_sent_bytes",
+//         "API service throughput in bytes.",
+//         &["endpoint"]
+//     )
+//     .unwrap()
+// });
+
 
 /// Inject engine
 pub(super) fn with_backend(backend: sq_engine::Backend) -> impl Filter<Extract = (sq_engine::Backend, ), Error = std::convert::Infallible> + Clone {

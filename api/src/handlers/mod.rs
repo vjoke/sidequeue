@@ -5,6 +5,7 @@ mod utils;
 use crate::handlers::utils::handle_rejection;
 use sq_logger::prelude::*;
 use warp::{filters::BoxedFilter, reply::Reply, Filter};
+use utils::{LATENCY_HISTOGRAM};
 
 pub(crate) fn get_routes(backend: sq_engine::Backend) -> BoxedFilter<(impl Reply,)> {
     let publish = queue::publish(backend.clone());
@@ -23,7 +24,9 @@ pub(crate) fn get_routes(backend: sq_engine::Backend) -> BoxedFilter<(impl Reply
         .with(warp::log::custom(|info| {
             let endpoint = info.path().split('/').nth(1).unwrap_or("-");
             info!("got info {} {}", info.method(), info.path());
-            // TODO: LATENCY_HISTOGRAM
+            LATENCY_HISTOGRAM
+                .with_label_values(&[endpoint, info.status().as_str()])
+                .observe(info.elapsed().as_secs_f64())
         }))
         .boxed()
 }

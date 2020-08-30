@@ -41,10 +41,3 @@ pub fn start_api_service(address: SocketAddr, context: &Context) -> Runtime {
     runtime
 }
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}

@@ -14,7 +14,9 @@ serde = { version = "1.0.114", features = ["derive"] }
 serde_derive = "1.0.115"
 warp = "0.2.4"
 futures = "0.3.5"
+once_cell = "1.4.0"
 tokio = { version = "0.2.22", features = ["full"]}
 sq-logger = {path = "../common/logger"}
+sq-metrics = {path = "../common/metrics"}
 sq-shutdown = {path = "../common/shutdown"}
 sq-engine = {path = "../engine"}
