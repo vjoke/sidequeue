@@ -1,9 +1,11 @@
-use std::io;
 use std::cmp::{Eq, PartialEq};
 use std::hash::Hash;
+use std::io;
+use async_trait::async_trait;
 
 /// The engine defines the interface for all the underlying backend
-pub trait Engine: Send {
+#[async_trait]
+pub trait Engine: Send + Sync {
     /// Publish a job to the queue
     ///
     /// # Arguments
@@ -124,6 +126,9 @@ pub trait Engine: Send {
 
     /// Shutdown the engine
     fn shutdown(&self) -> Result<(), io::Error>;
+
+    /// Run kicks of the engine and starts to process jobs
+    async fn run(&self) -> Result<(), io::Error>;
 }
 
 /// Job holds details for the work to be done

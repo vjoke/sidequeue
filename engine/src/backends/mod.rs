@@ -40,7 +40,10 @@ impl Backend {
         loop {
             tokio::select! {
                 _ = ticker.tick() => {
-                    info!("tick ...");
+                    info!("start processing jobs ...");
+                    let engine = self.engine.lock().await;
+                    let _ = engine.run().await;
+                    info!("stop processing jobs ...");
                 }
                 _ = stub.shutdown.recv() => {
                     info!("exit run");

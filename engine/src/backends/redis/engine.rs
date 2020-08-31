@@ -1,5 +1,6 @@
 use crate::engine::{Engine, Job};
 use std::io;
+use async_trait::async_trait;
 
 /// RedisEngine implements an engine with redis
 // #[derive(Clone)]
@@ -11,6 +12,7 @@ impl RedisEngine {
     }
 }
 
+#[async_trait]
 impl Engine for RedisEngine {
     /// Publish a job to the queue
     fn publish(
@@ -106,5 +108,10 @@ impl Engine for RedisEngine {
     /// Shutdown the engine
     fn shutdown(&self) -> Result<(), io::Error> {
         Ok(())
+    }
+
+    /// Run kicks off the engine and starts to process jobs
+    async fn run(&self) -> Result<(), io::Error> {
+        Ok(())    
     }
 }

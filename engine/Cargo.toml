@@ -10,9 +10,10 @@ publish = false
 [dependencies]
 tokio = { version = "0.2.22", features = ["full"] }
 dyn-clonable = { version = "0.9.0" }
-crossbeam-deque = "0.7.3"
+crossbeam-queue = "0.2.3"
 priority-queue = "1.0.0"
 hashbrown = "0.3"
 linked-hash-map = "0.5.3"
+async-trait = "0.1.40"
 sq-shutdown = {path = "../common/shutdown"}
 sq-logger = {path = "../common/logger"}
