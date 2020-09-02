@@ -111,7 +111,7 @@ impl Engine for RedisEngine {
     }
 
     /// Run kicks off the engine and starts to process jobs
-    async fn run(&self) -> Result<(), io::Error> {
+    async fn run(&mut self) -> Result<(), io::Error> {
         Ok(())    
     }
 }

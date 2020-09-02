@@ -41,7 +41,7 @@ impl Backend {
             tokio::select! {
                 _ = ticker.tick() => {
                     info!("start processing jobs ...");
-                    let engine = self.engine.lock().await;
+                    let mut engine = self.engine.lock().await;
                     let _ = engine.run().await;
                     info!("stop processing jobs ...");
                 }

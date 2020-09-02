@@ -1,20 +1,19 @@
-use super::utils::DueTime;
+use super::utils::{BusinessID, QueueID, JobID, JobMeta};
 use crate::engine::{Engine, Job};
+use async_trait::async_trait;
 use crossbeam_queue::{ArrayQueue, PushError};
 use hashbrown::hash_map::DefaultHashBuilder;
 use priority_queue::PriorityQueue;
-use std::collections::HashMap;
+use std::collections::{BinaryHeap, HashMap};
 use std::io;
-use async_trait::async_trait;
-
-type JobID = String;
+use std::time::Instant;
 
 /// MemoryEngine implements an engine with an in-memory db
 pub struct MemoryEngine {
     /// the jobs to be scheduled
-    pub pq: PriorityQueue<JobID, DueTime, DefaultHashBuilder>,
+    pub pq: BinaryHeap<JobMeta>,
     /// the job fifo queues separated with namespace
-    pub ready_jobs: HashMap<String, HashMap<JobID, ArrayQueue<JobID>>>,
+    pub ready_jobs: HashMap<BusinessID, HashMap<QueueID, ArrayQueue<JobID>>>,
     /// the job map that holds the actual job data
     pub all_jobs: HashMap<String, Job>,
 }
@@ -22,7 +21,7 @@ pub struct MemoryEngine {
 impl MemoryEngine {
     pub fn new() -> Self {
         MemoryEngine {
-            pq: PriorityQueue::<_, _, DefaultHashBuilder>::with_default_hasher(),
+            pq: BinaryHeap::new(),
             ready_jobs: HashMap::new(),
             all_jobs: HashMap::new(),
         }
@@ -128,11 +127,20 @@ impl Engine for MemoryEngine {
     }
 
     /// Run kicks off the engine and starts to process jobs
-    async fn run(&self) -> Result<(), io::Error> {
-       // Move job to ready queue if reaches its due time
-       
-        
-       Ok(()) 
-    }
+    async fn run(& mut self) -> Result<(), io::Error> {
+        // Move job to ready queue if reaches its due time
+        // FIXME: run a long time task in async function
+        loop {
+            if let Some(ref jm) = self.pq.peek() {
+                if jm.is_due() {
+                    let jm = self.pq.pop().unwrap();
+                    // TODO: add to ready queue
+                } 
+            } else {
+                break;
+            }
+        }
 
+        Ok(())
+    }
 }
