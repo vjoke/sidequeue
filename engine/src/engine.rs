@@ -1,6 +1,7 @@
 use std::cmp::{Eq, PartialEq};
 use std::hash::Hash;
 use std::io;
+use std::time::Instant;
 use async_trait::async_trait;
 
 /// The engine defines the interface for all the underlying backend
@@ -136,4 +137,23 @@ pub trait Engine: Send + Sync {
 pub struct Job {
     /// the id of the job
     pub id: String,
+    /// Due time that holds the time to execute the job
+    pub due_time: Instant,
+    /// Namespace is a string that holds the namespace for isolating biz
+    pub namespace: String,
+    /// Queue is a string that holds the queue name
+    pub queue: String,
 }
+
+impl Default for Job {
+    fn default() -> Job {
+        Job {
+            id: "TODO".into(),
+            due_time: Instant::now(),
+            namespace: "TODO".into(),
+            queue: "TODO".into(),
+        }
+    }
+}
+
+pub const DEFAULT_QUEUE_SIZE: usize = 1000;

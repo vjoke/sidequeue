@@ -52,7 +52,7 @@ impl Engine for RedisEngine {
         queues: String,
         job_id: Option<String>,
     ) -> Result<Job, io::Error> {
-        Ok(Job { id: "TODO".into() })
+        Ok(Job::default())
     }
 
     /// Get size of the queue

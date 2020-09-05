@@ -1,22 +1,26 @@
 use std::cmp::{Ord, Ordering};
+use std::fmt;
 use std::time::Instant;
 
-pub type BusinessID = String;
+pub type NamespaceID = String;
 pub type QueueID = String;
 pub type JobID = String;
 
-#[derive(Eq)]
-pub struct JobMeta(Instant, JobID);
+#[derive(Eq, Debug, Clone)]
+pub struct JobMeta {
+    pub instant: Instant,
+    pub job_id: String,
+}
 
 impl JobMeta {
     pub fn is_due(&self) -> bool {
-        self.0 < Instant::now()
+        self.instant < Instant::now()
     }
 }
 
 impl Ord for JobMeta {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.0.cmp(&other.0).reverse()
+        self.instant.cmp(&other.instant).reverse()
     }
 }
 
@@ -28,6 +32,12 @@ impl PartialOrd for JobMeta {
 
 impl PartialEq for JobMeta {
     fn eq(&self, other: &Self) -> bool {
-        self.0 == other.0
+        self.instant == other.instant
+    }
+}
+
+impl fmt::Display for JobMeta {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "due time: {:?}, id: {:?} ", self.instant, self.job_id)
     }
 }
