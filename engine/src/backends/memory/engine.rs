@@ -1,20 +1,24 @@
-use super::utils::{JobID, JobMeta, NamespaceID, QueueID};
 use crate::engine::{Engine, Job, DEFAULT_QUEUE_SIZE};
+use crate::utils::{JobID, JobMeta, NamespaceID, QueueID};
 use async_trait::async_trait;
 use crossbeam_queue::{ArrayQueue, PushError};
 use hashbrown::hash_map::DefaultHashBuilder;
 use priority_queue::PriorityQueue;
 use sq_logger::prelude::*;
+use std::cell::RefCell;
 use std::collections::{BinaryHeap, HashMap};
 use std::io;
-use std::time::Instant;
+use std::rc::Rc;
+use std::sync::{Arc, RwLock};
+
+type ReadyJobs = HashMap<NamespaceID, HashMap<QueueID, ArrayQueue<JobMeta>>>;
 
 /// MemoryEngine implements an engine with an in-memory db
 pub struct MemoryEngine {
     /// the jobs to be scheduled
     pub pq: BinaryHeap<JobMeta>,
     /// the job fifo queues separated with namespace
-    pub ready_jobs: HashMap<NamespaceID, HashMap<QueueID, ArrayQueue<JobMeta>>>,
+    pub ready_jobs: RefCell<ReadyJobs>,
     /// the job map that holds the actual job data
     pub all_jobs: HashMap<JobID, Job>,
 }
@@ -23,7 +27,9 @@ impl MemoryEngine {
     pub fn new() -> Self {
         MemoryEngine {
             pq: BinaryHeap::new(),
-            ready_jobs: HashMap::new(),
+            // ready_jobs: HashMap::new(),
+            ready_jobs: RefCell::new(HashMap::new()),
+            // ready_jobs: Arc::new(RwLock::new(RefCell::new(HashMap::new()))),
             all_jobs: HashMap::new(),
         }
     }
@@ -32,10 +38,10 @@ impl MemoryEngine {
 /// Helper functions go here
 impl MemoryEngine {
     fn check_namespace(&self, namespace: NamespaceID) -> bool {
-        self.ready_jobs.get(&namespace).is_some()
+        self.ready_jobs.borrow().get(&namespace).is_some()
     }
 
-    fn ensure_queue(&mut self, job: &Job) -> &ArrayQueue<JobMeta> {
+    fn push_job_to_ready_queue(&self, job: &Job) -> Result<(), PushError<JobMeta>> {
         // FIXME: is this right for extracting ref values?
         let Job {
             ref namespace,
@@ -43,16 +49,21 @@ impl MemoryEngine {
             ..
         } = job;
 
-        let mut queue_map = self.ready_jobs.get_mut(namespace).unwrap();
-        if !queue_map.contains_key(queue) {
-            queue_map.insert(*queue, ArrayQueue::new(DEFAULT_QUEUE_SIZE));
-            info!("Created the queue {} on the go", queue)
-        }
-        queue_map.get(queue).unwrap()
+        let mut queue_map = self.ready_jobs.borrow_mut();
+
+        let queue_map = queue_map
+            .entry(namespace.clone())
+            .or_insert_with(|| HashMap::new());
+
+        let queue = queue_map
+            .entry(queue.clone())
+            .or_insert_with(|| ArrayQueue::new(DEFAULT_QUEUE_SIZE));
+
+        queue.push(job.get_meta())
     }
 }
 
-#[async_trait]
+// #[async_trait]
 impl Engine for MemoryEngine {
     /// Publish a job to the queue
     fn publish(
@@ -151,22 +162,20 @@ impl Engine for MemoryEngine {
     }
 
     /// Run kicks off the engine and starts to process jobs
-    async fn run(&mut self) -> Result<(), io::Error> {
+    fn run(&mut self) -> Result<(), io::Error> {
         // Move job to ready queue if reaches its due time
-        // FIXME: run a long time task in async function
         loop {
             if let Some(jm) = self.pq.peek() {
                 if jm.is_due() {
                     // Move the dued job to ready queue
-                    let job = self.all_jobs.get(&jm.job_id).unwrap();
-                    let queue = self.ensure_queue(&job);
+                    let job = self.all_jobs.get(&jm.id).unwrap();
 
-                    match queue.push(jm.clone()) {
+                    match self.push_job_to_ready_queue(job) {
                         Ok(_) => {
-                            // FIXME: this jm will be seen in two queues before the following line
+                            // NOTICE: this jm will be seen in two queues before the following line
                             let jm = self.pq.pop().unwrap();
                             info!("push job {} from priority queue to ready queue ok", jm);
-                        },
+                        }
                         Err(err) => {
                             warn!("failed to push job {} from priority queue to ready queue with err {}", jm, err);
                             break;

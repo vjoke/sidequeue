@@ -42,7 +42,7 @@ impl Backend {
                 _ = ticker.tick() => {
                     info!("start processing jobs ...");
                     let mut engine = self.engine.lock().await;
-                    let _ = engine.run().await;
+                    let _ = engine.run();
                     info!("stop processing jobs ...");
                 }
                 _ = stub.shutdown.recv() => {

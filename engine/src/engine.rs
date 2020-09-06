@@ -1,12 +1,13 @@
+use crate::utils::JobMeta;
+use async_trait::async_trait;
 use std::cmp::{Eq, PartialEq};
 use std::hash::Hash;
 use std::io;
 use std::time::Instant;
-use async_trait::async_trait;
 
 /// The engine defines the interface for all the underlying backend
-#[async_trait]
-pub trait Engine: Send + Sync {
+// #[async_trait]
+pub trait Engine: Send {
     /// Publish a job to the queue
     ///
     /// # Arguments
@@ -129,7 +130,7 @@ pub trait Engine: Send + Sync {
     fn shutdown(&self) -> Result<(), io::Error>;
 
     /// Run kicks of the engine and starts to process jobs
-    async fn run(&mut self) -> Result<(), io::Error>;
+    fn run(&mut self) -> Result<(), io::Error>;
 }
 
 /// Job holds details for the work to be done
@@ -152,6 +153,15 @@ impl Default for Job {
             due_time: Instant::now(),
             namespace: "TODO".into(),
             queue: "TODO".into(),
+        }
+    }
+}
+
+impl Job {
+    pub fn get_meta(&self) -> JobMeta {
+        JobMeta {
+            id: self.id.clone(),
+            due_time: self.due_time,
         }
     }
 }
